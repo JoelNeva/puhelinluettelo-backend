@@ -24,6 +24,7 @@ let persons = [
     }
 ]
 
+app.use(express.json())
 
 app.get('/api/persons', (request, response) => {
     console.log(persons)
@@ -48,6 +49,19 @@ app.get('/api/info', (request, response) => {
     )
 })
 
+app.post('/api/persons', (request, response) => {
+    console.log(request.headers)
+    const body = request.body
+    const person = {
+        name: body.name,
+        number: body.number,
+        id: Math.floor(Math.random() * Math.pow(2,32))
+    }
+    persons = persons.concat(person)
+    console.log(person)
+    response.json(person)
+})
+
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
     console.log(`trying to delete id:${id}`)
@@ -60,7 +74,6 @@ app.delete('/api/persons/:id', (request, response) => {
         console.log(persons)
         response.status(204).end()
     }
-
 })
 
 const PORT = 3001
