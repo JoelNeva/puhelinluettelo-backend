@@ -25,8 +25,24 @@ let persons = [
     }
 ]
 
+morgan.token('requestBody', (request, response) => JSON.stringify(request.body))
+
 app.use(express.json())
-app.use(morgan('tiny'))
+app.use(morgan((tokens, req, res) => {
+    let customTokens = [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res),
+        tokens.res(req, res, 'content-length'), '-',
+        tokens['response-time'](req, res), 'ms'
+    ]
+
+    if (req.method === "POST") {
+        customTokens = customTokens.concat(tokens.requestBody(req, res))
+    }
+
+    return customTokens.join(' ')
+}))
 
 app.get('/api/persons', (request, response) => {
     response.json(persons)
