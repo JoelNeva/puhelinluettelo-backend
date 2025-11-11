@@ -1,4 +1,5 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 let persons = [
@@ -25,9 +26,9 @@ let persons = [
 ]
 
 app.use(express.json())
+app.use(morgan('tiny'))
 
 app.get('/api/persons', (request, response) => {
-    console.log(persons)
     response.json(persons)
 })
 
@@ -50,7 +51,6 @@ app.get('/api/info', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-    console.log(request.headers)
     const body = request.body
 
     if(!body.name){
@@ -77,20 +77,16 @@ app.post('/api/persons', (request, response) => {
         id: Math.floor(Math.random() * Math.pow(2,32))
     }
     persons = persons.concat(person)
-    console.log(person)
     response.json(person)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    console.log(`trying to delete id:${id}`)
     const person = persons.filter(person => person.id === id)
     if (!person[0]) {
-        console.log(`Person with id:${id} not found`)
         response.status(404).end()
     } else {
         persons = persons.filter(person => person.id !== id)
-        console.log(persons)
         response.status(204).end()
     }
 })
