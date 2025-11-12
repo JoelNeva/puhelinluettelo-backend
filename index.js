@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
 let persons = [
@@ -27,6 +28,7 @@ let persons = [
 
 morgan.token('requestBody', (request, response) => JSON.stringify(request.body))
 
+app.use(cors())
 app.use(express.json())
 app.use(morgan((tokens, req, res) => {
     let customTokens = [
@@ -90,8 +92,9 @@ app.post('/api/persons', (request, response) => {
     const person = {
         name: body.name,
         number: body.number,
-        id: Math.floor(Math.random() * Math.pow(2,32))
+        id: Math.floor(Math.random() * Math.pow(2,32)).toString()
     }
+
     persons = persons.concat(person)
     response.json(person)
 })
