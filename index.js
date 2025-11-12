@@ -1,6 +1,5 @@
-const express = require('express') //this is a test comment
+const express = require('express')
 const morgan = require('morgan')
-const cors = require('cors')
 const app = express()
 
 let persons = [
@@ -28,7 +27,7 @@ let persons = [
 
 morgan.token('requestBody', (request, response) => JSON.stringify(request.body))
 
-app.use(cors())
+app.use(express.static('dist'))
 app.use(express.json())
 app.use(morgan((tokens, req, res) => {
     let customTokens = [
