@@ -133,12 +133,6 @@ app.put('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
     const body = request.body
 
-    if(!body){
-        return response.status(400).json({
-            error: 'request body missing'
-        })
-    }
-
     if(!body.name){
         return response.status(400).json({
             error: 'name missing'
