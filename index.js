@@ -1,5 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const mongoose = require('mongoose')
+const Person = require('./models/person')
 const app = express()
 
 let persons = [
@@ -25,10 +28,11 @@ let persons = [
     }
 ]
 
-morgan.token('requestBody', (request, response) => JSON.stringify(request.body))
-
 app.use(express.static('dist'))
 app.use(express.json())
+
+//Morgan Logging
+morgan.token('requestBody', (request, response) => JSON.stringify(request.body))
 app.use(morgan((tokens, req, res) => {
     let customTokens = [
         tokens.method(req, res),
@@ -45,26 +49,43 @@ app.use(morgan((tokens, req, res) => {
     return customTokens.join(' ')
 }))
 
+//MongoDB Connect
+mongoose.connect(process.env.MONGODB_URI, { family: 4 })
+    .then(result => {
+        console.log('connected to MongoDB')
+    })
+    .catch((error) => {
+        console.log('error connecting to MongoDB:', error.message)
+    })
+
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(result => {
+        console.log(result)
+        response.json(result)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if (person === undefined) {
-        response.status(404).end()
-    } else {
-        response.json(person)
-    }
+    Person.findById(id).then(person => {
+        if (person === undefined) {
+            response.status(404).end()
+        } else {
+            response.json(person)
+        }
+    }).catch(error =>{
 
+    })
 })
 
 app.get('/api/info', (request, response) => {
-    response.send(
-        `<p>Phonebook has info for ${persons.length} people</p>
-        <p>${Date().toString()}</p>`
-    )
+    Person.find({}).then(persons => {
+        response.send(
+            `<p>Phonebook has info for ${persons.length} people</p>
+            <p>${Date().toString()}</p>`
+        )
+    })
+    
 })
 
 app.post('/api/persons', (request, response) => {
