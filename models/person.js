@@ -3,7 +3,10 @@ const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
 const personSchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        minlength: 3
+    },
     number: String,
 })
 
