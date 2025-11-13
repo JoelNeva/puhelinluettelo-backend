@@ -60,7 +60,6 @@ mongoose.connect(process.env.MONGODB_URI, { family: 4 })
 
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(result => {
-        console.log(result)
         response.json(result)
     })
 })
@@ -124,13 +123,16 @@ app.post('/api/persons', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = request.params.id
-    const person = persons.filter(person => person.id === id)
-    if (!person[0]) {
-        response.status(404).end()
-    } else {
-        persons = persons.filter(person => person.id !== id)
-        response.status(204).end()
-    }
+    Person.findByIdAndDelete(id).then(person => {
+        if (!person) {
+            response.status(404).end()
+        } else {
+            response.status(204).end()
+        }
+    }).catch(error =>{
+        console.log(error)
+        response.status(400).send({error: 'malformatted id'})
+    })
 })
 
 const PORT = 3001
