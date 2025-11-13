@@ -74,7 +74,8 @@ app.get('/api/persons/:id', (request, response) => {
             response.json(person)
         }
     }).catch(error =>{
-
+        console.log(error)
+        response.status(400).send({error: 'malformatted id'})
     })
 })
 
@@ -103,20 +104,22 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    if(persons.find(person => person.name === body.name)){
-        return response.status(400).json({
-            error: 'name must be unique'
+    Person.find({name: body.name}).then(responsePersonArray => {
+        if(responsePersonArray.length > 0){
+            return response.status(400).json({
+                error: 'name must be unique'
+            })
+        }
+
+        const person = new Person({
+            name: body.name,
+            number: body.number
         })
-    }
 
-    const person = {
-        name: body.name,
-        number: body.number,
-        id: Math.floor(Math.random() * Math.pow(2,32)).toString()
-    }
-
-    persons = persons.concat(person)
-    response.json(person)
+        person.save().then(responsePerson =>{
+            response.json(responsePerson)
+        })
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
